@@ -1,12 +1,43 @@
 # ML Survivor
 
-**Learn machine learning and MLOps by keeping models alive** — a [Server Survival](https://github.com/pshenok/server-survival)–style browser game.
+**Learn machine learning and MLOps by keeping models alive** — a [Server Survival](https://github.com/pshenok/server-survival)–style game.
 
-Train a model through hostile data waves, then deploy it to production and fight drift, traffic spikes, and SLA pressure. No install required: vanilla HTML, CSS, and JavaScript with zero build step.
+Train a model through hostile data waves, then deploy it to production and fight drift, traffic spikes, and SLA pressure.
+
+---
+
+## 🙏 Source & attribution
+
+This project is based on **[faizi729/ML-survivor](https://github.com/faizi729/ML-survivor)** — the original
+ML Survivor game (vanilla HTML/CSS/JavaScript) created by [@faizi729](https://github.com/faizi729).
+**All credit for the game's design, mechanics, and content goes to the original author.**
+
+This fork only adds **tweaks and a deployment**:
+
+- a **Streamlit (Python) edition** so the game runs as a turn-based web app (see [`streamlit_app/`](streamlit_app/)), and
+- a **difficulty rebalance** (new accessible **Student** tier, plus Engineer and the original "Researcher" balance).
+
+If you're looking for the canonical game, please visit and star the original repository:
+👉 **https://github.com/faizi729/ML-survivor**
+
+---
+
+## Two ways to play
+
+| Edition | Stack | How to run |
+|---------|-------|------------|
+| **Browser (original)** | Vanilla HTML/CSS/JS | Open `index.html` — no build step |
+| **Streamlit (this fork's addition)** | Python + Streamlit | `cd streamlit_app && pip install -r requirements.txt && streamlit run app.py` |
+
+The Streamlit edition is **turn-based** (the browser version's real-time timer becomes explicit
+**Run Epoch** / **Run Wave** controls) and adds a selectable difficulty with an accessible **Student**
+default. See [`streamlit_app/README.md`](streamlit_app/README.md) for details.
 
 ---
 
 ## Quick start
+
+### Browser edition (original)
 
 1. Clone or download this repository.
 2. Open `index.html` in any modern browser (Chrome, Firefox, Edge, Safari).
@@ -23,6 +54,17 @@ npx serve .
 ```
 
 Then visit `http://localhost:8080`.
+
+### Streamlit edition (this fork)
+
+```bash
+cd streamlit_app
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Streamlit opens a browser tab (default `http://localhost:8501`). Pick a difficulty (Student is the
+accessible default), then use **Run Epoch** / **Run Wave** to advance turn-by-turn.
 
 ---
 
@@ -188,7 +230,7 @@ Failures show a toast explaining what *would* have ended the run, with fix hints
 
 ```
 ML survivor/
-├── index.html              # Menu hub — pick a mode
+├── index.html              # Browser menu hub — pick a mode
 ├── train.html              # Train Mode (full game)
 ├── train-sandbox.html      # Train Sandbox
 ├── deploy.html             # Deploy Mode (full game)
@@ -202,20 +244,49 @@ ML survivor/
 │   ├── tutorial.js         # Slide tutorials for all modes
 │   ├── train-sandbox.js    # Train Sandbox adapter (patches game.js)
 │   └── deploy-sandbox.js   # Deploy Sandbox adapter (patches deploy.js)
+├── streamlit_app/          # ⭐ Streamlit (Python) edition added by this fork
+│   ├── app.py              # Streamlit UI: menu, Train/Deploy screens, turn-based loop
+│   ├── engine_train.py     # Train Mode simulation (port of js/game.js)
+│   ├── engine_deploy.py    # Deploy Mode simulation (port of js/deploy.js + shared.js)
+│   ├── requirements.txt
+│   └── README.md           # Streamlit edition docs + rebalance notes
 ├── LICENSE                 # MIT
 └── README.md
 ```
 
 Sandboxes set `window.ML_SURVIVOR_NO_AUTO_INIT = true` before loading core scripts, then boot via their own adapter on `DOMContentLoaded`.
 
+### Difficulty (Streamlit edition)
+
+The Streamlit edition adds a selectable difficulty that rebalances many levers at once (thresholds,
+budget, income, upkeep, hazard/drift severity, learning/decay speed, SLA, and more):
+
+| Tier | Who it's for | Guided-play win rate (Train / Deploy) |
+|------|--------------|----------------------------------------|
+| **Student** *(default)* | Accessible — learn the mechanics | ~100% / ~90% |
+| **Engineer** | A balanced middle | ~75% / ~82% |
+| **Researcher** | Reproduces the original's tough balance | hard |
+
+Student is forgiving enough that following the in-game guidance reliably wins, while still teaching the
+core lessons (over-regularizing underfits; ignoring drift or adversarial traffic still loses).
+
 ---
 
 ## Tech stack
+
+**Browser edition (original):**
 
 - **Vanilla JavaScript** — no framework, no bundler, no transpiler  
 - **Chart.js 4** (CDN) — train/val and live/ghost accuracy charts  
 - **localStorage** — Train Mode export persists across sessions  
 - **Playwright** (optional dev dependency) — used for local browser testing  
+
+**Streamlit edition (this fork):**
+
+- **Python + Streamlit** — turn-based web UI  
+- **pandas** — accuracy charts via `st.line_chart`  
+- UI-free engine modules (`engine_train.py`, `engine_deploy.py`) — testable headlessly and verified
+  end-to-end with Streamlit's `AppTest` harness  
 
 ---
 
@@ -229,6 +300,14 @@ ML Survivor teaches real ML/MLOps tradeoffs through gameplay:
 - **Model fragility** — a model you train poorly degrades faster in Deploy Mode  
 
 Inspired by [Server Survival](https://github.com/pshenok/server-survival) — infrastructure tower defense reimagined for the model lifecycle.
+
+---
+
+## Credits
+
+- **Original game:** [faizi729/ML-survivor](https://github.com/faizi729/ML-survivor) by [@faizi729](https://github.com/faizi729) — all game design, mechanics, and content.
+- **This fork:** Streamlit (Python) edition + difficulty rebalance (Student/Engineer/Researcher tiers). Tweaks and deployment only.
+- **Concept inspiration:** [Server Survival](https://github.com/pshenok/server-survival) by [@pshenok](https://github.com/pshenok).
 
 ---
 

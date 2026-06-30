@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRAIN: Model Survival</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="play-page">
+  <div id="app">
+    <nav class="mode-nav"><a href="index.html">← ML Survivor Menu</a></nav>
+
+    <header class="title-bar">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <h1>TRAIN<span class="accent">:</span> Model Survival</h1>
+      </div>
+      <p class="tagline">Defend your model. Balance bias and variance. Don't collapse.</p>
+    </header>
+
+    <section class="play-dashboard">
+      <p class="zone-header"><span class="zone-step">①</span> Watch these — Val Acc is your health bar</p>
+
+      <section class="hud">
+      <div class="stat-card train">
+        <span class="stat-label">Train Accuracy</span>
+        <span class="stat-value" id="train-acc">52.0%</span>
+        <div class="stat-bar"><div class="stat-fill train-fill" id="train-bar"></div></div>
+      </div>
+      <div class="stat-card val">
+        <span class="stat-label">Validation Accuracy</span>
+        <span class="stat-value" id="val-acc">50.0%</span>
+        <div class="stat-bar"><div class="stat-fill val-fill" id="val-bar"></div></div>
+      </div>
+      <div class="stat-card budget">
+        <span class="stat-label">Compute Budget</span>
+        <span class="stat-value" id="budget">$100</span>
+      </div>
+      <div class="stat-card epoch">
+        <span class="stat-label">Epoch</span>
+        <span class="stat-value" id="epoch">1</span>
+      </div>
+    </section>
+
+    <section class="risk-row">
+      <div class="risk-meter overfit">
+        <span class="risk-label">Overfit Risk</span>
+        <div class="risk-bar"><div class="risk-fill overfit-fill" id="overfit-meter"></div></div>
+        <span class="risk-hint" id="overfit-hint">Train/val gap widening</span>
+      </div>
+      <div class="risk-meter underfit">
+        <span class="risk-label">Underfit Risk</span>
+        <div class="risk-bar"><div class="risk-fill underfit-fill" id="underfit-meter"></div></div>
+        <span class="risk-hint" id="underfit-hint">Too much regularization</span>
+      </div>
+    </section>
+
+    <section class="wave-panel">
+      <div class="wave-header">
+        <span class="wave-badge" id="wave-badge">Wave 1</span>
+        <span class="wave-name" id="wave-name">Clean Data Wave</span>
+        <span class="wave-timer" id="wave-timer">Next batch: 8s</span>
+      </div>
+      <p class="wave-desc" id="wave-desc">Baseline training data — your model should learn easily if defenses are balanced.</p>
+      <div class="wave-threshold">
+        <span>Val Acc threshold this wave:</span>
+        <strong id="wave-threshold">55%</strong>
+        <span class="threshold-status" id="threshold-status"></span>
+      </div>
+    </section>
+
+      <div class="chart-panel dashboard-chart">
+        <div class="chart-header">Live Accuracy</div>
+        <canvas id="accuracy-chart"></canvas>
+        <div class="chart-legend">
+          <span class="legend-item train">— Train</span>
+          <span class="legend-item val">— Val</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="pipeline-zone">
+      <p class="zone-header"><span class="zone-step">②</span> Build pipeline — click a slot, then pick a defense below</p>
+      <div class="pipeline-container">
+        <div class="pipeline-label">Training Pipeline</div>
+        <div class="pipeline">
+          <div class="pipeline-node data-node">
+            <div class="node-icon">📊</div>
+            <div class="node-label">Data</div>
+            <div class="node-sub">Incoming batch</div>
+          </div>
+          <div class="pipeline-connector"><div class="flow-particles"></div></div>
+          <div class="defense-slots" id="defense-slots"></div>
+          <div class="pipeline-connector"><div class="flow-particles"></div></div>
+          <div class="pipeline-node model-node" id="model-node">
+            <div class="node-icon">🧠</div>
+            <div class="node-label">Model</div>
+            <div class="node-sub" id="model-status">Learning…</div>
+          </div>
+          <div class="pipeline-connector"><div class="flow-particles"></div></div>
+          <div class="pipeline-node output-node">
+            <div class="node-icon">📈</div>
+            <div class="node-label">Output</div>
+            <div class="node-sub">Predictions</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="defense-shop shop-zone">
+      <p class="zone-header zone-shop-header"><span class="zone-step">③</span> ML Defenses — add to your pipeline</p>
+      <h2>ML Defenses</h2>
+      <p class="shop-hint">Click a slot, then pick a defense. Use <strong>×</strong> on a slot to remove it (50% refund).</p>
+      <div class="defense-cards" id="defense-cards"></div>
+    </aside>
+
+    <div class="event-toast hidden" id="event-toast"></div>
+
+    <div class="overlay hidden" id="start-overlay">
+      <div class="overlay-content">
+        <h2>TRAIN: Model Survival</h2>
+        <p>You are an ML Engineer. Each epoch, a new batch of training data flows through your pipeline. Place defenses to keep <strong>Validation Accuracy</strong> high — that's your real health bar.</p>
+        <ul class="tutorial-list">
+          <li><strong>Train Acc</strong> rises fast. If it outruns Val Acc, you overfit.</li>
+          <li><strong>Stack too many regularizers</strong> and you underfit — can't hit wave thresholds.</li>
+          <li><strong>Compute Budget ($)</strong> pays for defenses. You get passive income each wave.</li>
+        </ul>
+        <button class="btn-primary" id="start-btn">Start Training Run</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="postmortem-overlay">
+      <div class="overlay-content postmortem">
+        <h2 id="postmortem-title">Run Failed — Postmortem</h2>
+        <div class="postmortem-cause" id="postmortem-cause"></div>
+        <div class="postmortem-stats" id="postmortem-stats"></div>
+        <div class="postmortem-advice" id="postmortem-advice"></div>
+        <div class="postmortem-actions">
+          <button class="btn-primary" id="restart-btn">Train Again</button>
+          <a href="deploy.html" class="btn-secondary hidden" id="deploy-btn">Deploy This Model →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/shared.js"></script>
+  <script src="js/tutorial.js"></script>
+  <script src="js/game.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      addTutorialHelpLink('train');
+      showTutorial('train', () => {
+        document.getElementById('start-overlay').classList.remove('hidden');
+      });
+    });
+  </script>
+</body>
+</html>

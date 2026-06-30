@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEPLOY: Model in Production</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="play-page">
+  <div id="app">
+    <nav class="mode-nav"><a href="index.html">← ML Survivor Menu</a></nav>
+
+    <header class="title-bar">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <h1>DEPLOY<span class="accent">:</span> Model in Production</h1>
+      </div>
+      <p class="tagline">Serve live traffic. Fight drift. Don't blow the SLA or the budget.</p>
+    </header>
+
+    <section class="play-dashboard">
+      <p class="zone-header"><span class="zone-step">①</span> Watch these — Live Acc &amp; SLA are your health bars</p>
+
+    <!-- Model profile banner -->
+    <section class="model-profile-bar" id="model-profile-bar">
+      <span id="profile-label">Model: —</span>
+      <span id="profile-baseline">Baseline val acc: —</span>
+      <span id="profile-fragility">Fragility: —</span>
+    </section>
+
+    <!-- HUD -->
+    <section class="hud deploy-hud">
+      <div class="stat-card live">
+        <span class="stat-label">Live Accuracy</span>
+        <span class="stat-value" id="live-acc">—</span>
+        <div class="stat-bar"><div class="stat-fill live-fill" id="live-bar"></div></div>
+      </div>
+      <div class="stat-card latency">
+        <span class="stat-label">Latency</span>
+        <span class="stat-value" id="latency">—</span>
+      </div>
+      <div class="stat-card rps">
+        <span class="stat-label">Requests/sec</span>
+        <span class="stat-value" id="rps">—</span>
+      </div>
+      <div class="stat-card budget">
+        <span class="stat-label">Compute Budget</span>
+        <span class="stat-value" id="budget">$120</span>
+      </div>
+      <div class="stat-card epoch">
+        <span class="stat-label">Epoch</span>
+        <span class="stat-value" id="epoch">1</span>
+      </div>
+    </section>
+
+    <!-- SLA + Drift -->
+    <section class="risk-row deploy-risk">
+      <div class="risk-meter sla">
+        <span class="risk-label">SLA Status (<span id="sla-threshold">70</span>% min)</span>
+        <div class="risk-bar"><div class="risk-fill sla-fill" id="sla-meter"></div></div>
+        <span class="risk-hint" id="sla-hint">Contract active</span>
+      </div>
+      <div class="drift-panel" id="drift-panel">
+        <span class="risk-label">Drift Meter <span class="drift-hidden-tag hidden" id="drift-blind-tag">(blind — no monitoring)</span></span>
+        <canvas id="drift-canvas" width="280" height="56"></canvas>
+        <span class="risk-hint" id="drift-hint">Training vs live distribution</span>
+      </div>
+    </section>
+
+    <!-- Wave info -->
+    <section class="wave-panel">
+      <div class="wave-header">
+        <span class="wave-badge deploy-badge" id="wave-badge">Wave 1</span>
+        <span class="wave-name" id="wave-name">Normal Traffic</span>
+        <span class="wave-timer" id="wave-timer">Next event: —</span>
+      </div>
+      <p class="wave-desc" id="wave-desc">Baseline production traffic with slow natural drift.</p>
+      <p class="wave-ml" id="wave-ml">MLOps concept: baseline serving under steady load.</p>
+    </section>
+
+      <div class="chart-panel dashboard-chart">
+        <div class="chart-header">Live Accuracy Over Time</div>
+        <canvas id="accuracy-chart"></canvas>
+        <div class="chart-legend">
+          <span class="legend-item live">— Live (with retrains)</span>
+          <span class="legend-item ghost">— Ghost (no retrains)</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="pipeline-zone">
+      <p class="zone-header"><span class="zone-step">②</span> Build pipeline — click a slot, then pick infra below</p>
+      <div class="pipeline-container">
+        <div class="pipeline-label">Production Pipeline</div>
+        <div class="pipeline deploy-pipeline">
+          <div class="pipeline-node data-node">
+            <div class="node-icon">👥</div>
+            <div class="node-label">Client</div>
+            <div class="node-sub">Live traffic</div>
+          </div>
+          <div class="pipeline-connector"><div class="flow-particles"></div></div>
+          <div class="defense-slots" id="infra-slots"></div>
+          <div class="pipeline-connector"><div class="flow-particles"></div></div>
+          <div class="pipeline-node model-node" id="serving-node">
+            <div class="node-icon">🧠</div>
+            <div class="node-label">Serving</div>
+            <div class="node-sub" id="serving-status">Online</div>
+          </div>
+          <div class="pipeline-connector"><div class="flow-particles"></div></div>
+          <div class="pipeline-node output-node">
+            <div class="node-icon">📡</div>
+            <div class="node-label">Feedback</div>
+            <div class="node-sub">Metrics loop</div>
+          </div>
+        </div>
+        <div class="capacity-row">
+          <span>Capacity: <strong id="capacity-stat">0</strong> RPS</span>
+          <span>Load: <strong id="load-stat">0%</strong></span>
+          <span id="retrain-status" class="retrain-status hidden">Retraining…</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Infra shop -->
+    <aside class="defense-shop shop-zone">
+      <p class="zone-header zone-shop-header"><span class="zone-step">③</span> Deployment Infrastructure — add to pipeline</p>
+      <h2>Deployment Infrastructure</h2>
+      <p class="shop-hint">Click a slot, then pick infra. Use <strong>×</strong> on a slot to remove it (50% refund).</p>
+      <div class="defense-cards" id="infra-cards"></div>
+      <div class="action-row">
+        <button class="btn-action" id="retrain-btn" disabled>Trigger Retrain ($—)</button>
+      </div>
+    </aside>
+
+    <div class="event-toast hidden" id="event-toast"></div>
+
+    <!-- Setup overlay -->
+    <div class="overlay hidden" id="setup-overlay">
+      <div class="overlay-content setup">
+        <h2>DEPLOY: Model in Production</h2>
+        <p id="setup-intro">Load your trained model or pick a preset profile.</p>
+
+        <div id="train-import-panel" class="setup-panel hidden">
+          <h3>From Train Mode</h3>
+          <div class="import-card" id="import-card"></div>
+          <button class="btn-primary" id="use-import-btn">Deploy This Model</button>
+        </div>
+
+        <div id="preset-panel" class="setup-panel">
+          <h3 id="preset-heading">Or pick a preset profile</h3>
+          <div class="preset-cards" id="preset-cards"></div>
+        </div>
+
+        <button class="btn-secondary setup-skip hidden" id="force-preset-btn">Use preset instead</button>
+      </div>
+    </div>
+
+    <!-- Postmortem -->
+    <div class="overlay hidden" id="postmortem-overlay">
+      <div class="overlay-content postmortem">
+        <h2 id="postmortem-title">Production Failed — Postmortem</h2>
+        <div class="postmortem-cause" id="postmortem-cause"></div>
+        <div class="postmortem-stats" id="postmortem-stats"></div>
+        <div class="postmortem-advice" id="postmortem-advice"></div>
+        <div class="postmortem-actions">
+          <button class="btn-primary" id="restart-btn">Deploy Again</button>
+          <a href="train.html" class="btn-secondary">Retrain Model →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/shared.js"></script>
+  <script src="js/tutorial.js"></script>
+  <script src="js/deploy.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      addTutorialHelpLink('deploy');
+      showTutorial('deploy', () => {
+        document.getElementById('setup-overlay').classList.remove('hidden');
+      });
+    });
+  </script>
+</body>
+</html>

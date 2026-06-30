@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Survivor — Model Lifecycle</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="menu-page">
+  <div class="menu-container menu-wide">
+    <header class="menu-header">
+      <span class="logo-icon">◈</span>
+      <h1>ML <span class="accent">Survivor</span></h1>
+      <p class="menu-tagline">Two modes. Four ways to play. Learn ML & MLOps by keeping models alive.</p>
+    </header>
+
+    <div class="mode-cards mode-cards-four">
+      <a href="train.html" class="mode-card train-mode">
+        <div class="mode-icon">🧠</div>
+        <h2>Train Mode</h2>
+        <p>Full game — survive hostile training waves. Balance overfit vs underfit under pressure.</p>
+        <span class="mode-cta">Play Train →</span>
+      </a>
+
+      <a href="train-sandbox.html" class="mode-card train-sandbox-mode">
+        <div class="mode-icon">🧪</div>
+        <h2>Train Sandbox</h2>
+        <p>No game over. Sliders for budget, wave intensity, drift. Explore defenses freely.</p>
+        <span class="mode-cta">Open Sandbox →</span>
+      </a>
+
+      <a href="deploy.html" class="mode-card deploy-mode">
+        <div class="mode-icon">🚀</div>
+        <h2>Deploy Mode</h2>
+        <p>Full game — serve production traffic, fight drift, manage infra cost vs SLA.</p>
+        <span class="mode-cta">Play Deploy →</span>
+      </a>
+
+      <a href="deploy-sandbox.html" class="mode-card deploy-sandbox-mode">
+        <div class="mode-icon">🔬</div>
+        <h2>Deploy Sandbox</h2>
+        <p>No SLA failure. Tune traffic, drift, model fragility. See retraining value on the graph.</p>
+        <span class="mode-cta">Open Sandbox →</span>
+      </a>
+    </div>
+
+    <div class="menu-bridge" id="train-export-banner">
+      <p id="export-status">No Train Mode run saved — Deploy Mode will offer preset model profiles.</p>
+    </div>
+
+    <p class="menu-footer">Vanilla JS · No build step · MIT License · Inspired by <a href="https://github.com/pshenok/server-survival" target="_blank" rel="noopener">Server Survival</a></p>
+  </div>
+
+  <script src="js/shared.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const exp = loadTrainExport();
+      const el = document.getElementById('export-status');
+      if (exp) {
+        el.innerHTML = `Train export ready: <strong>${round1(exp.valAcc)}% val acc</strong>, fragility <strong>${round1(exp.fragility * 100)}%</strong> — Deploy Mode will use this model.`;
+        document.getElementById('train-export-banner').classList.add('has-export');
+      }
+    });
+  </script>
+</body>
+</html>
